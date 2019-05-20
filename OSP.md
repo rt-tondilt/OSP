@@ -65,7 +65,18 @@ Enne raamatukogu teema valimist kaalusin teisi variante. Järgnevalt põhjendan,
   * Andmebaasi indeksid võivad andmemahtu kettal ette ennustamatult suurendada.
 * Andmebaas varukoopiate hoidmiseks. Kui midagi sellist ise kirjutada, siis on selle katki minemise tõenäosus liiga suur. Samuti kui teha diferentsiaalseid varukoopiaid, siis võib graafe tarvis minna.
 * Pilaprojekti andmebaas, kus on sellised tabelite nimed ja väljade väärtused nagu: "Teleekraan", "Wilson", "armastuse ministeerium" ja "Suur Vend".
-* 
+
+Lisaks pidin valima vahendi diagrammide tegemiseks. Mul on villand minu arvutis olevast halvast tarkvarast ja seepõrast hakkasin ise joonistusvahendit otsima. Minu valikud olid järgmised:
+
+1. Graphviz. Ei sobinud, kuna kirjelduskeel oli liiga keeruline ja diagrammid tulid koledad.
+
+   ![](test1.svg)
+
+2. Valisin lõpuks QuickDBD. Ta on küll bugine ja temaga esaab tasuta teha vaid kuni 10 tabelit.
+
+# Raamatukogu andmebaasi kirjeldus
+
+
 
 * Märksõnad
 * Osakonnad
@@ -75,4 +86,3 @@ Enne raamatukogu teema valimist kaalusin teisi variante. Järgnevalt põhjendan,
 * Kohaviitade süsteem
 * Lugejakaardi numbrite süsteem
 * Kirjastused
-
