@@ -47,7 +47,25 @@ Niisiis olen näidanud, et minu kriteeriumide järgi on iga andmebaas amoraalne.
 9. Muusikakauplus. Ma tsiteerin "Firmal on mitu taset "sõbrakaarte"" ja oigan vaikselt seda kirjutades. Kui töötajad tahavad kangesti oma sõpradele allahindlust teha, siis võivad nad ju lihtsalt seda salaja teha.
 10. Raamatukogu. Elagu hea teema. Paraku on enamus raamatukogusid sarnased ja kogu vajalik tarkvara on ilmselt turul saada.
 
-## Diskreetse matemaatika ja eesti keele meeldivus
+## Valed valikuvõimalused
+
+Enne raamatukogu teema valimist kaalusin teisi variante. Järgnevalt põhjendan, miks pidin need välja praakima.
+
+* Andmebaas, mis hoiab lausearvutuse valemite peal kehtivaid samaväärsusi ja mida ma praktikumis tutvustasin. See on halb mõte, kuna:
+  * Andmebaassisaldaks puid ja tsükleid, mida oleks parem kujutada OOP või mingi muu andmebaasiga. Relatsioonilise andmebaasi kasutamine on selle teema puhul ebamugav.
+  * Meile ei õpetatud, kas ja kuidas teha SQL-is rekursiivseid päringuid. Ma lugesin internetist midagi WITH võtmesõna kohta, aga ei saanud aru. (Oleks kasu olnud, kui meid oleks SAP-i interaktiivse SQL-i kasutusjuhendisse suunatud.)
+  * See andmebaas tuleks nii väike (minu hinnangul alla saja kilobaidi), et targem oleks kasutada tekstifaili. 
+  * Nii et kokkuvõttes oleks tegu, diskreetse matemaatika, andmetüübiteoria ja relatsioonilise andmebaasiteooria alase enesepiinamisülesandega.
+* Andmebaas, mis hoiaks koolimatemaatika termineid, nende õpetamise aegu ja nende vahelisi sõltuvusi suunatud graafina. Selle mõtte mõtles välja üks sugulasest Tallinna Ülikooli õppejõud. Mõte tuli välja praakida, kuna seal oleks vaid üks tabel ja andmebaasi asemel saaks kasutada Püütonit ja tekstifaile.
+* Andmebaas, mis hoiaks LEGO tükkide infot. Paraku olin oma LEGO-d ära andnud.
+* Andmebaas erinevate autorite ja teoste sõnakasutuse statistiliseks võrdluseks. Kasutaksin vikitekste, et leida materjali ja estnltk-d et leida iga sõna algvorm. See on halb mõte, kuna:
+  * SQL ei ole statistika ja teadusarvutuse tööriist.
+  * Tabeleid tuleks liiga vähe.
+  * Ühel sõnal võib olla mitu eri algvormi.
+  * Andmebaasi indeksid võivad andmemahtu kettal ette ennustamatult suurendada.
+* Andmebaas varukoopiate hoidmiseks. Kui midagi sellist ise kirjutada, siis on selle katki minemise tõenäosus liiga suur. Samuti kui teha diferentsiaalseid varukoopiaid, siis võib graafe tarvis minna.
+* Pilaprojekti andmebaas, kus on sellised tabelite nimed ja väljade väärtused nagu: "Teleekraan", "Wilson", "armastuse ministeerium" ja "Suur Vend".
+* 
 
 * Märksõnad
 * Osakonnad
@@ -57,3 +75,4 @@ Niisiis olen näidanud, et minu kriteeriumide järgi on iga andmebaas amoraalne.
 * Kohaviitade süsteem
 * Lugejakaardi numbrite süsteem
 * Kirjastused
+

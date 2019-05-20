@@ -14,7 +14,7 @@ BEGIN
             WHERE turniir = a_turniir
             GROUP BY Eesnimi, Perenimi
             ORDER BY P DESC)
-        UNION ALL
+        UNION AlL
         (SELECT TOP 1 eesnimi, perenimi, SUM(punkt) as P
             FROM v_punktid JOIN Isikud ON V_punktid.mangija = Isikud.id
             WHERE turniir = a_turniir
