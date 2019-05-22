@@ -76,7 +76,11 @@ Lisaks pidin valima vahendi diagrammide tegemiseks. Mul on villand minu arvutis 
 
 # Raamatukogu andmebaasi kirjeldus
 
+Nagu juba enne mainitud, siis enamus raamatukogutarkvara on juba valmis kirjutatud. Kui tahta selles valdkonnas midagi kasulikku teha, siis tuleb raamatukogu töötajatega suhelda ja kindlaks teha, et mis puudused olemasoleval tarkvaral on ja kas on targem uus kirjutada või vana ümber kirjutada.
 
+Sellepärast panen mina oma raamatukogu andmebaasile sellised nn feature-d, mida ma huvitavaks ja teostatavaks pean. Siin on nimekiri asjadest, mis meelega sisse jätsin.
+
+Raamatud, autorid, mitu autorit, eksemplarid, lugejad, laenutused, mitu laenutust, tähtajad, erinevad tähtajad olenevalt raamatu tüübist, kohaviidad.
 
 * Märksõnad
 * Osakonnad
@@ -86,3 +90,4 @@ Lisaks pidin valima vahendi diagrammide tegemiseks. Mul on villand minu arvutis 
 * Kohaviitade süsteem
 * Lugejakaardi numbrite süsteem
 * Kirjastused
+
