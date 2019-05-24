@@ -1,159 +1,278 @@
 /*
 Andmebaasi koodi esimene osa on autogenereeritud.
-Selle saamiseks tuleb eksportida MySql-ina ja siis teha järgmine tekstiasendus.
-"AUTO_INCREMENT NOT NULL" -> "NOT NULL DEFAULT AUTOINCREMENT"
+
+Genereerimiseks kasutati internetist kättesaadavat tööriista QuickDBD. SQL-i
+genereerimiseks tuleb eksportida MySql-ina ja siis teha järgmine tekstiasendus.
+
+'AUTO_INCREMENT NOT NULL' -> 'NOT NULL DEFAULT AUTOINCREMENT'
+
 Siis saab SAP interactive SQL sellest aru.
+
+Peale selle eemaldati tekstist kõik '`' märgid, et vähendada müra.
+
+Lisaks sellele on saadud SQL-i koodis tehtud mõned muudatused, mille
+kirjeldamine pole QuickDBD-ga võimalik. Ning lõpuks lisati kommentaarid.
 */
 
-CREATE TABLE `Book` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `isbn` varchar(13)  NULL ,
-    `title` varchar(50)  NOT NULL ,
-    `printed_year` integer  NULL ,
-    `written_year` integer  NULL ,
-    `print_name` varchar(20)  NOT NULL DEFAULT '',
-    `tags` varchar(100)  NOT NULL ,
-    `comments` varchar(2000)  NOT NULL ,
+/*----------------------------------------------------------------------------*/
+
+CREATE TABLE Book (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    isbn varchar(13)  NULL ,
+    title varchar(50)  NOT NULL ,
+    printed_year integer  NULL ,
+    written_year integer  NULL ,
+    print_name varchar(20)  NOT NULL DEFAULT '',
+    tags varchar(100)  NOT NULL ,
+    comments varchar(2000)  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `Exemplar` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `book` integer  NOT NULL ,
-    `place` integer  NOT NULL ,
-    `lending_rule` integer  NOT NULL ,
-    `condition` char(1)  NOT NULL CHECK (`condition` in ('S', 'P', 'M')),
-    `comments` varchar(50)  NOT NULL DEFAULT '',
-    `lending_count` integer  NOT NULL DEFAULT 0,
+isbn -- Kontrollisin pikkust vikipeediast. ISBN-il on ka kontrollsumma,
+    aga seda see andmebaas ei kontrolli. Igal raamatukogus oleval raamatul ei
+    pruugi ISBN olla.
+title -- Kui title on pikem kui 50 siis kirjuta see comments-isse.
+printed_year, written_year -- Ei pruugi teada olla.
+print_name -- Näiteks 'Esimene trükk' või 'Teine trükk'. See võiks ka integer
+    olla, kuid kuna eri kirjastused võivad sama asja välja anda, siis võivad
+    trükki numbrid sassi minna. See andmebaad ei tea kirjastustest midagi ja
+    seetõttu panin siia igaks juhuks varchar-i. Samuti võib ISBN mitmel trükil
+    sama olla; oleneb sellest, kas tegu on nn edition-ide või reprint-idega.
+    Kui on teada vaid üks trükk, siis soovitan kasutada väljendit
+    'Esimene trükk' või jätta väli tühjaks.
+tags -- Teost kirjeldavad märksõnad komadega eraldatud. Näiteks
+    'füüsika, kosmos, astronoomia, kuu'. See pole ilus lahendus; targem oleks
+    teha eraldi märksõnade tabel ja märksõna-raamatu-seoste tabel, mis
+    kiirendaks otsingut ja aitaks ennetada kirjavigu märksõnades. Kuna QuickDBD
+    lubab teha vaid kuni 10 tabelit, siis jäi see ära.
+comments -- Siin on nii palju ruumi, et võib kirjutada, mis süda lustib. Ma
+    lugesin StackOverflows-t, et mõistlikud andmebaasid optimiseerivad selle ära
+    ja iga raamatu kohta ei tule umbes 2000 tähe jagu raisatud kettaruumi.
+*/
+
+
+CREATE TABLE Exemplar (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    book integer  NOT NULL ,
+    place integer  NOT NULL ,
+    lending_rule integer  NOT NULL ,
+    condition char(1)  NOT NULL CHECK (condition in ('S', 'D', 'M')),
+    comments varchar(50)  NOT NULL DEFAULT '',
+    lending_count integer  NOT NULL DEFAULT 0,
     PRIMARY KEY (
-        `id`
+        id
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `Reader` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `reader_card_number` varchar(13)  NOT NULL ,
-    `name` varchar(100)  NOT NULL ,
-    `phone` varchar(20)  NULL ,
-    `address` varchar(100)  NULL ,
-    `debt` integer  NOT NULL ,
+book, place, lending_rule -- Välisvõtmed vastavatesse tabelitesse.
+condition -- Variandid on 'S' (suurepärane), 'D' (defektne),
+    'M' (mahakandmisele).
+comments -- Näiteks 'kohviplekid lehekülgedel 48-52'.
+lending_count -- See andmebaas ei pea meeles mineviku laenutusi ja seega on
+    see veerg ainukene võimalus statistika tegemiseks.
+*/
+
+
+CREATE TABLE Reader (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    reader_card_number varchar(13)  NOT NULL ,
+    name varchar(100)  NOT NULL ,
+    phone varchar(20)  NULL ,
+    address varchar(100)  NULL ,
+    debt integer  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     ),
-    CONSTRAINT `uc_Reader_reader_card_number` UNIQUE (
-        `reader_card_number`
+    CONSTRAINT uc_Reader_reader_card_number UNIQUE (
+        reader_card_number
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `Author` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `name` varchar(100)  NOT NULL ,
+reader_card_number -- Lugejakaardi number. Sellel võiks pms ka kontrollsumma
+    olla, aga ütleme, et raamatukogu töötajatel on oma meetod numbrite andmiseks
+    ja nad tahavad seda muuta ja seetõttu pole ei kontrollsummat ega
+    AUTOINCREMENT-i.
+name -- Eesnimi ja perekonnanimi pole eraldatud, kuna inimesel ei pruugi olla
+    üheselt eristatavat ees- ja perekonnanime. Kui see teema rohkem huvitab,
+    siis võib guugeldada 'Falsehoods Programmers Believe About Names'. Ma jään
+    selle peale lootma et iga inimene ise valib, kuidas ta nimi andmebaasi
+    läheb. Tavaliste eestlaste puhul tuleks eesnimi enne panna.
+phone -- Võib anda telefoninumbri.
+address -- See võiks olla mitu erinevat veergu nt riik, maakond, linn, tänav,
+    maja, korter. Aga lisaks sellele on ka talu nimed ja nii edasi. Seepärast
+    valisin lihtsama viisi. Vaata ka 'Falsehoods programmers believe about
+    geography'.
+debt -- Lugeja võlg. Siia lähevad need raamatud, mis on tagastatud peale
+    tähtaega, kuid viivist pole makstud. Võlg on 0 või positiivne.
+*/
+
+CREATE TABLE Author (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    name varchar(100)  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     ),
-    CONSTRAINT `uc_Author_name` UNIQUE (
-        `name`
+    CONSTRAINT uc_Author_name UNIQUE (
+        name
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `Authoring` (
-    `autor` integer  NOT NULL ,
-    `book` integer  NOT NULL
+name -- Vaata märkust Reader.name kohta. Siin saab õnneks rohkem eksootilisi
+    näiteid tuua. 'Gaius Julius Caesar', 'Guido van Rossum',
+    'Leonardo da Vinci', 'Kong Fuzi' e. 'Konfutsius'.
+*/
+
+
+CREATE TABLE Authoring (
+    author integer  NOT NULL ,
+    book integer  NOT NULL
 );
+/*
+Märkused:
 
-CREATE TABLE `Lending` (
-    `exemplar` integer  NOT NULL ,
-    `reader` integer  NOT NULL ,
-    `deadline` date  NOT NULL ,
+author, book -- Välisvõtmed vastavatesse tabelitesse.
+*/
+
+CREATE TABLE Lending (
+    exemplar integer  NOT NULL ,
+    reader integer  NOT NULL ,
+    deadline date  NOT NULL ,
     PRIMARY KEY (
-        `exemplar`,`reader`
+        exemplar,reader
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `Place` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `pointer` varchar(20)  NOT NULL ,
+exemplar, reader -- Välisvõtmed vastavatesse tabelitesse.
+deadline -- Ilma viivisetta tagastamise viimane päev.
+*/
+
+CREATE TABLE Place (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    pointer varchar(20)  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     ),
-    CONSTRAINT `uc_Place_pointer` UNIQUE (
-        `pointer`
+    CONSTRAINT uc_Place_pointer UNIQUE (
+        pointer
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `LendingRule` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `name` varchar(20)  NOT NULL ,
-    `days` integer  NOT NULL ,
-    `fine` integer  NOT NULL ,
+pointer -- Kohaviit. Sellel võik ka olla kontrollsumma või midagi sellesarnast,
+    kuid ma arvan, et on parem kui töötajad saavad ise oma lühendeid välja
+    mõelda.
+*/
+
+CREATE TABLE LendingRule (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    name varchar(20)  NOT NULL ,
+    days integer  NOT NULL ,
+    fine integer  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     ),
-    CONSTRAINT `uc_LendingRule_name` UNIQUE (
-        `name`
+    CONSTRAINT uc_LendingRule_name UNIQUE (
+        name
     )
 );
+/*
+Märkused:
 
-CREATE TABLE `BusOrder` (
-    `id` integer NOT NULL DEFAULT AUTOINCREMENT ,
-    `day` date  NOT NULL ,
-    `reader` integer  NOT NULL ,
+name -- Näiteks 'kuulaenutus', 'nädalalaenutus', 'ei laenutata'.
+days -- Päevade arv.
+fine -- Viivis sentides päeva kohta.
+*/
+
+CREATE TABLE BusOrder (
+    id integer NOT NULL DEFAULT AUTOINCREMENT ,
+    day date  NOT NULL ,
+    reader integer  NOT NULL ,
     PRIMARY KEY (
-        `id`
+        id
     )
 );
+/*
+Märkused:
+day -- Mis päevasele bussile raamatud tellitakse.
+reader -- Kes tellis raamatud.
+*/
 
-CREATE TABLE `OrderedBook` (
-    `book` integer  NOT NULL ,
-    `bus_order` integer  NOT NULL
+CREATE TABLE OrderedBook (
+    book integer  NOT NULL ,
+    bus_order integer  NOT NULL
 );
+/*
+Märkused:
+book -- Mis raamat telliti
+bus_order -- Mis tellimusega see raamat tuleb.
+*/
 
-ALTER TABLE `Exemplar` ADD CONSTRAINT `fk_Exemplar_book` FOREIGN KEY(`book`)
-REFERENCES `Book` (`id`);
+/*----------------------------------------------------------------------------*/
+
+/*
+Järgnevalt paneme paika välisvõtmed. Kuna kõik välisvõtmed on id-d, siis
+välisvõtmete uuendamisel pole mõtet. Kustutamiskäitumise valin aga ise.
+
+NB: Vaikimisi käitumine on "ON DELETE RESTRICT ON UPDATE RESTRICT".
+*/
+
+ALTER TABLE Exemplar ADD CONSTRAINT fk_Exemplar_book FOREIGN KEY(book)
+REFERENCES Book (id);
 /* Raamatut ei saa kustutada, kui tal on eksemplare. */
 
-ALTER TABLE `Exemplar` ADD CONSTRAINT `fk_Exemplar_place` FOREIGN KEY(`place`)
-REFERENCES `Place` (`id`);
+ALTER TABLE Exemplar ADD CONSTRAINT fk_Exemplar_place FOREIGN KEY(place)
+REFERENCES Place (id);
 /* Kohaviita ei saa kustutada, kui seal on eksemplare. */
 
-ALTER TABLE `Exemplar` ADD CONSTRAINT `fk_Exemplar_lending_rule` FOREIGN KEY(`lending_rule`)
-REFERENCES `LendingRule` (`id`);
+ALTER TABLE Exemplar ADD CONSTRAINT fk_Exemplar_lending_rule FOREIGN KEY(lending_rule)
+REFERENCES LendingRule (id);
 /* Laenureeglit ei saa kustutada, kui leidub selle reegliga eksemplaare. */
 
-ALTER TABLE `Authoring` ADD CONSTRAINT `fk_Authoring_autor` FOREIGN KEY(`autor`)
-REFERENCES `Author` (`id`)
+ALTER TABLE Authoring ADD CONSTRAINT fk_Authoring_author FOREIGN KEY(author)
+REFERENCES Author (id)
 ON DELETE CASCADE;
 /* Autori kustutamine kustutab autorluse. */
 
-ALTER TABLE `Authoring` ADD CONSTRAINT `fk_Authoring_book` FOREIGN KEY(`book`)
-REFERENCES `Book` (`id`)
+ALTER TABLE Authoring ADD CONSTRAINT fk_Authoring_book FOREIGN KEY(book)
+REFERENCES Book (id)
 ON DELETE CASCADE;
 /* Raamatu kustutamine kustutab autorluse. */
 
-ALTER TABLE `Lending` ADD CONSTRAINT `fk_Lending_exemplar` FOREIGN KEY(`exemplar`)
-REFERENCES `Exemplar` (`id`);
+ALTER TABLE Lending ADD CONSTRAINT fk_Lending_exemplar FOREIGN KEY(exemplar)
+REFERENCES Exemplar (id);
 /* Eksemplaari ei saa kustutada, kui ta pole tagastatud. */
 
-ALTER TABLE `Lending` ADD CONSTRAINT `fk_Lending_reader` FOREIGN KEY(`reader`)
-REFERENCES `Reader` (`id`);
+ALTER TABLE Lending ADD CONSTRAINT fk_Lending_reader FOREIGN KEY(reader)
+REFERENCES Reader (id);
 /* Lugejat ei saa kustutada, kui ta pole mingit eksemplaari tagastanud. */
 
-ALTER TABLE `BusOrder` ADD CONSTRAINT `fk_BusOrder_reader` FOREIGN KEY(`reader`)
-REFERENCES `Reader` (`id`)
+ALTER TABLE BusOrder ADD CONSTRAINT fk_BusOrder_reader FOREIGN KEY(reader)
+REFERENCES Reader (id)
 ON DELETE CASCADE;
 /* Lugeja kustutamine kustutab tema bussitellimused. */
 
-ALTER TABLE `OrderedBook` ADD CONSTRAINT `fk_OrderedBook_book` FOREIGN KEY(`book`)
-REFERENCES `Book` (`id`)
+ALTER TABLE OrderedBook ADD CONSTRAINT fk_OrderedBook_book FOREIGN KEY(book)
+REFERENCES Book (id)
 ON DELETE CASCADE;
 /* Raamatu kustutamine eemaldab selle raamatu bussitellimuse ridadest. */
 
-ALTER TABLE `OrderedBook` ADD CONSTRAINT `fk_OrderedBook_bus_order` FOREIGN KEY(`bus_order`)
-REFERENCES `BusOrder` (`id`)
+ALTER TABLE OrderedBook ADD CONSTRAINT fk_OrderedBook_bus_order FOREIGN KEY(bus_order)
+REFERENCES BusOrder (id)
 ON DELETE CASCADE;
 /* Bussitellimuse kustutamine eemaldab selle bussitellimuse kõik read. */
 
 
-/*============================================================================*/
+/*----------------------------------------------------------------------------*/
