@@ -23,8 +23,8 @@ CREATE TABLE Book (
     printed_year integer  NULL ,
     written_year integer  NULL ,
     print_name varchar(20)  NOT NULL DEFAULT '',
-    tags varchar(100)  NOT NULL ,
-    comments varchar(2000)  NOT NULL ,
+    tags varchar(100)  NOT NULL DEFAULT '' ,
+    comments varchar(2000)  NOT NULL DEFAULT '',
     PRIMARY KEY (
         id
     )
@@ -276,3 +276,65 @@ ON DELETE CASCADE;
 
 
 /*----------------------------------------------------------------------------*/
+
+INPUT INTO Author (id, "name")
+FROM 'D:\\AB\\osp\\example_data\\author.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+INPUT INTO Book (id, title, written_year)
+FROM 'D:\\AB\\osp\\example_data\\book.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+
+
+INPUT INTO Authoring (book, author)
+FROM 'D:\\AB\\osp\\example_data\\authoring.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+
+INPUT INTO Place (id, pointer)
+FROM 'D:\\AB\\osp\\example_data\\place.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+INPUT INTO LendingRule (id, "name", days, fine)
+FROM 'D:\\AB\\osp\\example_data\\lending_rule.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+INPUT INTO Exemplar (id, book, place, lending_rule, condition, comments, lending_count)
+FROM 'D:\\AB\\osp\\example_data\\exemplar.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+INPUT INTO Reader (id, reader_card_number, "name", debt)
+FROM 'D:\\AB\\osp\\example_data\\reader.csv'
+FORMAT ASCII DELIMITED BY ',';
+
+/*----------------------------------------------------------------------------*/
+
+CREATE VIEW v_book_statistics(book_id, book_title, lending_count) AS
+SELECT Book.id, Book.title, SUM(lending_count) as lending_count
+FROM Book KEY JOIN Exemplar
+GROUP BY Book.id, Book.title
+ORDER BY lending_count DESC, Book.title;
+
+CREATE VIEW v_book_authors(book_id, book_title, authors) AS
+SELECT Book.id, Book.title, LIST(Author.name, '; ' ORDER BY Author.name)
+FROM Book KEY JOIN Authoring KEY JOIN Author
+GROUP BY Book.id;
+
+CREATE VIEW v_shelf_state(pointer, exemplar_id, book_title, authors) AS
+SELECT Place.pointer, Exemplar.id, book_title, v_book_authors.authors
+FROM Place KEY JOIN Exemplar JOIN v_book_authors
+ON Exemplar.book = v_book_authors.book_id;
+
+/*CREATE PROCEDURE sp_reader_loaned_exemplars (reader_id integer)
+RESULT (
+book_title varchar(100),
+deadline date,
+days_over_deadline integer,
+fine_
+)
+BEGIN
+SELECT eesnimi, perenimi, CURRENT DATE
+FROM isikud
+WHERE klubi = a_klubi_id ORDER BY eesnimi ;
+END ;*/
