@@ -149,6 +149,9 @@ CREATE TABLE Lending (
     deadline date  NOT NULL ,
     PRIMARY KEY (
         exemplar,reader
+    ),
+    CONSTRAINT uc_Lending_exemplar UNIQUE (
+        exemplar
     )
 );
 /*
@@ -319,7 +322,7 @@ GROUP BY Book.id, Book.title
 ORDER BY lending_count DESC, Book.title;
 
 CREATE VIEW v_book_authors AS
-SELECT Book.id, Book.title, LIST(Author.name, '; ' ORDER BY Author.name)
+SELECT Book.id, Book.title, LIST(Author.name, '; ' ORDER BY Author.name) AS authors
 FROM Book KEY JOIN Authoring KEY JOIN Author
 GROUP BY Book.id, Book.title;
 
@@ -331,12 +334,98 @@ SELECT
 FROM Book KEY JOIN Exemplar KEY JOIN Place KEY JOIN LendingRule JOIN v_book_authors
 ON Book.id = v_book_authors.id;
 
-CREATE VIEW v_shelf_state(pointer, exemplar_id, book_title, authors) AS
-SELECT Place.pointer, Exemplar.id, book_title, v_book_authors.authors
+CREATE VIEW v_shelf_state AS
+SELECT Place.pointer, Exemplar.id as exemplar_id, title, authors
 FROM Place KEY JOIN Exemplar JOIN v_book_authors
 ON Exemplar.book = v_book_authors.id;
 
 
+/*
+Funktsioon lugejakaardi esitanud lugejale eksemlaari laenamiseks.
+
+Funktsioon tagastab tagastustähtaja.
+
+Funktsioon ei tööta kui:
+    * Eksemplaari pole olemas
+    * Sellise lugejakaardi numbriga lugejat pole.
+    * Eksemplar on juba välja laenutatud.
+    * Eksemplar on kohalkasutuseks.
+*/
+CREATE FUNCTION f_lend_exemplar(
+a_exemplar integer,
+a_reader_card_number varchar(13)
+)
+RETURNS date
+NOT DETERMINISTIC
+BEGIN
+    DECLARE d_deadline date;
+    DECLARE d_reader integer;
+
+    SELECT DATEADD(DAY, days, CURRENT DATE) INTO d_deadline
+    FROM Exemplar KEY JOIN LendingRule
+    WHERE Exemplar.id = a_exemplar AND NOT days=0;
+
+    SELECT id INTO d_reader FROM Reader
+    WHERE reader_card_number = a_reader_card_number;
+
+    INSERT INTO Lending (exemplar, reader, deadline)
+    VALUES (a_exemplar, d_reader, d_deadline);
+
+    RETURN d_deadline;
+END;
+
+CREATE FUNCTION f_return_exemplar(
+a_exemplar integer
+)
+RETURNS integer
+NOT DETERMINISTIC
+BEGIN
+    DECLARE d_datediff integer;
+    DECLARE d_total_fine integer;
+
+    SELECT DATEDIFF(DAY, Lending.deadline, CURRENT DATE) INTO d_datediff
+    FROM Lending
+    WHERE Lending.exemplar = a_exemplar;
+
+    SELECT (
+    CASE WHEN d_datediff > 0 THEN d_datediff * fine ELSE 0 END
+    ) AS A INTO d_total_fine
+    FROM Exemplar KEY JOIN LendingRule
+    WHERE Exemplar.id = a_exemplar;
+
+    UPDATE Exemplar SET lending_count = lending_count + 1
+    WHERE id = a_exemplar;
+
+    DELETE FROM Lending WHERE Lending.exemplar = a_exemplar;
+
+    RETURN d_total_fine;
+END;
+
+/*
+//INSERT INTO Lending (exemplar, reader, deadline) VALUES (2, 1, DATEADD(DAY, 4, CURRENT DATE));
+
+CREATE FUNCTION f_lend_exemplar2(
+a_exemplar integer,
+a_reader_card_number varchar(13)
+)
+RETURNS date
+NOT DETERMINISTIC
+BEGIN
+    DECLARE d_deadline date;
+    DECLARE d_reader integer;
+
+    SELECT DATEADD(DAY, "days", CURRENT DATE) INTO d_deadline
+    FROM Exemplar KEY JOIN LendingRule
+    WHERE Exemplar.id = a_exemplar;
+
+    SELECT id INTO d_reader FROM Reader
+    WHERE reader_card_number = a_reader_card_number;
+
+    INSERT INTO Lending (exemplar, reader, deadline)
+    VALUES (a_exemplar, d_reader, d_deadline);
+
+    RETURN d_deadline;
+END;*/
 
 /*CREATE PROCEDURE sp_reader_loaned_exemplars (reader_id integer)
 RESULT (
