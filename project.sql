@@ -279,52 +279,64 @@ ON DELETE CASCADE;
 
 INPUT INTO Author (id, "name")
 FROM 'D:\\AB\\osp\\example_data\\author.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Book (id, title, written_year)
 FROM 'D:\\AB\\osp\\example_data\\book.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 
 
 INPUT INTO Authoring (book, author)
 FROM 'D:\\AB\\osp\\example_data\\authoring.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 
 INPUT INTO Place (id, pointer)
 FROM 'D:\\AB\\osp\\example_data\\place.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO LendingRule (id, "name", days, fine)
 FROM 'D:\\AB\\osp\\example_data\\lending_rule.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Exemplar (id, book, place, lending_rule, condition, comments, lending_count)
 FROM 'D:\\AB\\osp\\example_data\\exemplar.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Reader (id, reader_card_number, "name", debt)
 FROM 'D:\\AB\\osp\\example_data\\reader.csv'
-FORMAT ASCII DELIMITED BY ',';
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 /*----------------------------------------------------------------------------*/
 
-CREATE VIEW v_book_statistics(book_id, book_title, lending_count) AS
+
+
+CREATE VIEW v_book_statistics AS
 SELECT Book.id, Book.title, SUM(lending_count) as lending_count
 FROM Book KEY JOIN Exemplar
 GROUP BY Book.id, Book.title
 ORDER BY lending_count DESC, Book.title;
 
-CREATE VIEW v_book_authors(book_id, book_title, authors) AS
+CREATE VIEW v_book_authors AS
 SELECT Book.id, Book.title, LIST(Author.name, '; ' ORDER BY Author.name)
 FROM Book KEY JOIN Authoring KEY JOIN Author
-GROUP BY Book.id;
+GROUP BY Book.id, Book.title;
+
+CREATE VIEW v_exemplar_pretty AS
+SELECT
+    Exemplar.id, isbn, Book.title, authors, printed_year, written_year, print_name,
+    tags, condition, Exemplar.comments, lending_count, pointer,
+    LendingRule.name AS lending_rule
+FROM Book KEY JOIN Exemplar KEY JOIN Place KEY JOIN LendingRule JOIN v_book_authors
+ON Book.id = v_book_authors.id;
 
 CREATE VIEW v_shelf_state(pointer, exemplar_id, book_title, authors) AS
 SELECT Place.pointer, Exemplar.id, book_title, v_book_authors.authors
 FROM Place KEY JOIN Exemplar JOIN v_book_authors
-ON Exemplar.book = v_book_authors.book_id;
+ON Exemplar.book = v_book_authors.id;
+
+
 
 /*CREATE PROCEDURE sp_reader_loaned_exemplars (reader_id integer)
 RESULT (
