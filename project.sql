@@ -16,6 +16,9 @@ kirjeldamine pole QuickDBD-ga võimalik. Ning lõpuks lisati kommentaarid.
 
 /*----------------------------------------------------------------------------*/
 
+/* See on hiljem vajalik. */
+SET OPTION PUBLIC.continue_after_raiserror = OFF;
+
 CREATE TABLE Book (
     id integer NOT NULL DEFAULT AUTOINCREMENT ,
     isbn varchar(13)  NULL ,
@@ -314,18 +317,27 @@ FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 /*----------------------------------------------------------------------------*/
 
 
-
+/*
+Vaade raamatute laenutamise kohta statistika tegemiseks.
+*/
 CREATE VIEW v_book_statistics AS
 SELECT Book.id, Book.title, SUM(lending_count) as lending_count
 FROM Book KEY JOIN Exemplar
 GROUP BY Book.id, Book.title
 ORDER BY lending_count DESC, Book.title;
 
+/*
+Vaade mis vormindab raamatu autorid semikoolonitega eraldatud sõneks.
+*/
 CREATE VIEW v_book_authors AS
 SELECT Book.id, Book.title, LIST(Author.name, '; ' ORDER BY Author.name) AS authors
 FROM Book KEY JOIN Authoring KEY JOIN Author
 GROUP BY Book.id, Book.title;
 
+/*
+Vaade, mis kuvab kogu eksemplariga seotud info, mis raamatukogutöötajat või lugejat
+võib huvitada.
+*/
 CREATE VIEW v_exemplar_pretty AS
 SELECT
     Exemplar.id, isbn, Book.title, authors, printed_year, written_year, print_name,
@@ -334,15 +346,24 @@ SELECT
 FROM Book KEY JOIN Exemplar KEY JOIN Place KEY JOIN LendingRule JOIN v_book_authors
 ON Book.id = v_book_authors.id;
 
+
+/*
+Vaade, mis on kasulik kohaviidale vastava riiuli inspekteerimiseks.
+*/
 CREATE VIEW v_shelf_state AS
-SELECT Place.pointer, Exemplar.id as exemplar_id, title, authors
-FROM Place KEY JOIN Exemplar JOIN v_book_authors
-ON Exemplar.book = v_book_authors.id;
+SELECT Place.pointer, Exemplar.id as exemplar_id, isbn, Book.title, authors,
+    CASE WHEN EXISTS (
+        SELECT * FROM Lending WHERE Lending.exemplar = Exemplar.id
+    ) THEN 1 ELSE 0 END
+    AS is_lended
+FROM Place KEY JOIN Exemplar KEY JOIN Book JOIN v_book_authors
+ON Book.id = v_book_authors.id;
 
 
 /*
 Funktsioon lugejakaardi esitanud lugejale eksemlaari laenamiseks.
 
+Funktsioon loob andmebaasi uue laenutuse.
 Funktsioon tagastab tagastustähtaja.
 
 Funktsioon ei tööta kui:
@@ -374,6 +395,17 @@ BEGIN
     RETURN d_deadline;
 END;
 
+
+/*
+Funktsioon eksemplaari tagastamiseks.
+
+Funktsioon eemaldab andmebaasist laenutuse.
+Funktsioon tagastab nõutava viivise.
+
+Funktsioon ei tööta kui:
+    * Eksemplaari pole olemas
+    * Eksemplaar pole välja laenutatud.
+*/
 CREATE FUNCTION f_return_exemplar(
 a_exemplar integer
 )
@@ -387,9 +419,13 @@ BEGIN
     FROM Lending
     WHERE Lending.exemplar = a_exemplar;
 
+    IF d_datediff IS NULL THEN
+        RAISERROR 19999 'This exemplar is not lended.'
+    END IF;
+
     SELECT (
     CASE WHEN d_datediff > 0 THEN d_datediff * fine ELSE 0 END
-    ) AS A INTO d_total_fine
+    ) INTO d_total_fine
     FROM Exemplar KEY JOIN LendingRule
     WHERE Exemplar.id = a_exemplar;
 
@@ -399,6 +435,41 @@ BEGIN
     DELETE FROM Lending WHERE Lending.exemplar = a_exemplar;
 
     RETURN d_total_fine;
+END;
+
+/*
+Protseduur, mis tagastab eksemplarid, mis peavad hetkel riiulis olema
+tähestikulises järjekorras.
+*/
+CREATE PROCEDURE sp_examine_place (a_pointer varchar(13))
+RESULT (
+exemplar_id integer,
+isbn varchar(13),
+title varchar(50),
+authors varchar(2000)
+)
+BEGIN
+    SELECT exemplar_id, isbn, title, authors FROM v_shelf_state
+    WHERE pointer = a_pointer AND is_lended=0
+    ORDER BY authors, title;
+END;
+
+/*
+Vaata, mis eksemplarid lugejal on laenutatud.
+*/
+CREATE PROCEDURE sp_reader_lendings (a_reader_card_number varchar(13))
+RESULT (
+exemplar_id integer,
+isbn varchar(13),
+title varchar(50),
+authors varchar(2000),
+deadline date
+)
+BEGIN
+    SELECT v_exemplar_pretty.id, isbn, title, authors, deadline
+    FROM Reader KEY JOIN Lending KEY JOIN v_exemplar_pretty
+    WHERE reader_card_number = a_reader_card_number
+    ORDER BY deadline, authors, title;
 END;
 
 /*
