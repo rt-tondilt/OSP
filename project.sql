@@ -284,34 +284,35 @@ ON DELETE CASCADE;
 /*----------------------------------------------------------------------------*/
 
 INPUT INTO Author (id, "name")
-FROM 'D:\\AB\\osp\\example_data\\author.csv'
+FROM 'example_data\\author.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Book (id, title, written_year)
-FROM 'D:\\AB\\osp\\example_data\\book.csv'
+FROM 'example_data\\book.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
-
-
 
 INPUT INTO Authoring (book, author)
-FROM 'D:\\AB\\osp\\example_data\\authoring.csv'
+FROM 'example_data\\authoring.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
-
 INPUT INTO Place (id, pointer)
-FROM 'D:\\AB\\osp\\example_data\\place.csv'
+FROM 'example_data\\place.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO LendingRule (id, "name", days, fine)
-FROM 'D:\\AB\\osp\\example_data\\lending_rule.csv'
+FROM 'example_data\\lending_rule.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Exemplar (id, book, place, lending_rule, condition, comments, lending_count)
-FROM 'D:\\AB\\osp\\example_data\\exemplar.csv'
+FROM 'example_data\\exemplar.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 INPUT INTO Reader (id, reader_card_number, "name", debt)
-FROM 'D:\\AB\\osp\\example_data\\reader.csv'
+FROM 'example_data\\reader.csv'
+FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
+
+INPUT INTO Lending (exemplar, reader, deadline)
+FROM 'example_data\\lending.csv'
 FORMAT ASCII DELIMITED BY ',' ENCODING 'UTF-8';
 
 /*----------------------------------------------------------------------------*/
