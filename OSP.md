@@ -82,11 +82,11 @@ Sellepärast panen mina oma raamatukogu andmebaasile sellised nn feature-d, mida
 
 Raamatud, autorid, mitu autorit, eksemplarid, lugejad, laenutused, mitu laenutust, tähtajad, erinevad tähtajad olenevalt raamatu tüübist, kohaviidad.
 
-* Märksõnad
+Ja siin on nimekiri sajadest, mis jätsin välja.
+
+* Märksõnad (eraldi tabelis
 * Osakonnad
 * Töötajate kasutajad
-* Seisukorra täpsem hindamine
-* Aadressid
-* Kohaviitade süsteem
-* Lugejakaardi numbrite süsteem
+* Raamatu seisukorra täpsem hindamine. Praegu on ühe tähega kodeeritud hinnang.
+* Aadressid eraldi väljadena (linn, tänav, maja)
 * Kirjastused
