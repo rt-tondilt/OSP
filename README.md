@@ -7,7 +7,7 @@ Kasutatud tarkvara:
  * QuickDBD
  * Windowsi käsurida
 
-Failide sisu:
+## Failide sisu:
 
 * [OSP.md](OSP.md) .Selles failis on pikk kirjeldus, miks see projekt nii hiljaks jäi ja natukene infot raamatukogu koha. Info raamatukogu kohta on puudulik.
 
@@ -26,3 +26,10 @@ Failide sisu:
 
 
 * [F.md](F.md). Relatsioonide funktsionaalsete sõltuvuste analüüs. See pole veel üldsegi valmis.
+
+## Muud märkused
+
+QuickDBD_input.txt, diagramm.PNG ja mysql_export.sql on ajast maas.
+Ma tegin project SQL-is mõned muudatused, mis ei ole QuickDBD failides ja diagrammis näha,
+kuigi nad võiks olla. Nimelt on Lending - Exemplar  "üks või null ühele" seos.
+ja seda pole diagrammis ja QuickDBD failides näha. Samuti võivad mõned andmetüübid valed olla.
