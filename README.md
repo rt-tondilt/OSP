@@ -16,10 +16,13 @@ Failide sisu:
 * [delete_and_init_db.cmd](delete_and_init_db.cmd). Kustutab andmebaasi ja genereerib selle uuesti.
 
 * [QuickDBD_input.txt](QuickDBD_input.txt). Tekst, mis tuleb kopeerida QuickDBD aknasse, et saada diagramm.
-NB: QuickDBD ei mäleta, mis kastid kus paiknevad ja need tuleb ise paika lohistada.
+  NB: QuickDBD ei mäleta, mis kastid kus paiknevad ja need tuleb ise paika lohistada.
 
 * [mysql_export.sql](mysql_export.sql). QuickDBD genereeritud väljund.
 
 * [diagramm.PNG](diagramm.PNG). QuickDBD-ga genereeritud diagramm.
+
+  ![](diagramm.PNG)
+
 
 * [F.md](F.md). Relatsioonide funktsionaalsete sõltuvuste analüüs. See pole veel üldsegi valmis.

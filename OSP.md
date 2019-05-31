@@ -1,6 +1,6 @@
-OSP
+# OSP
 
-#Sissejuhatus
+## Sissejuhatus
 
 Minule teadaolevalt on OSP-iga hiljaks jäämisel järgmised põhjused:
 
