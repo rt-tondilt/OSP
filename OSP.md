@@ -54,7 +54,7 @@ Enne raamatukogu teema valimist kaalusin teisi variante. Järgnevalt põhjendan,
 * Andmebaas, mis hoiab lausearvutuse valemite peal kehtivaid samaväärsusi ja mida ma praktikumis tutvustasin. See on halb mõte, kuna:
   * Andmebaassisaldaks puid ja tsükleid, mida oleks parem kujutada OOP või mingi muu andmebaasiga. Relatsioonilise andmebaasi kasutamine on selle teema puhul ebamugav.
   * Meile ei õpetatud, kas ja kuidas teha SQL-is rekursiivseid päringuid. Ma lugesin internetist midagi WITH võtmesõna kohta, aga ei saanud aru. (Oleks kasu olnud, kui meid oleks SAP-i interaktiivse SQL-i kasutusjuhendisse suunatud.)
-  * See andmebaas tuleks nii väike (minu hinnangul alla saja kilobaidi), et targem oleks kasutada tekstifaili. 
+  * See andmebaas tuleks nii väike (minu hinnangul alla saja kilobaidi), et targem oleks kasutada tekstifaili.
   * Nii et kokkuvõttes oleks tegu, diskreetse matemaatika, andmetüübiteoria ja relatsioonilise andmebaasiteooria alase enesepiinamisülesandega.
 * Andmebaas, mis hoiaks koolimatemaatika termineid, nende õpetamise aegu ja nende vahelisi sõltuvusi suunatud graafina. Selle mõtte mõtles välja üks sugulasest Tallinna Ülikooli õppejõud. Mõte tuli välja praakida, kuna seal oleks vaid üks tabel ja andmebaasi asemel saaks kasutada Püütonit ja tekstifaile.
 * Andmebaas, mis hoiaks LEGO tükkide infot. Paraku olin oma LEGO-d ära andnud.
@@ -90,4 +90,3 @@ Raamatud, autorid, mitu autorit, eksemplarid, lugejad, laenutused, mitu laenutus
 * Kohaviitade süsteem
 * Lugejakaardi numbrite süsteem
 * Kirjastused
-
